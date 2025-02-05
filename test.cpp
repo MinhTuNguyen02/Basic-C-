@@ -1,19 +1,14 @@
 #include <iostream>
-#include <sstream>
-#include <cstdlib>
-#define MAX 50
 using namespace std;
 
 int main(){
-	string s;
-	char num[MAX];
-	getline(cin, s);
-	stringstream ss(s);
-	ss >> num;
-	while(ss >> num){
-		cout << num << "\n";
-	}
+    int m,n;
+    cout << "nhap m: ";
+    cin >> m;
+    cout << "nhap n: ";
+    cin >> n;
 
-
-	return 0;
+    int a=m*n;
+    cout << a;
+    return 0;
 }

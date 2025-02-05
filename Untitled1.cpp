@@ -1,24 +1,43 @@
-#include <iostream>
-#include <cstring>
-#include <vector>
-using namespace std;
+#include <dos.h>
+#include <stdio.h>
+#include <conio.h>
 
+#define SECTOR_SIZE 512
 
-
-int main(){
-	int nums[] = {1,12,-5,-6,50,3};
-	int k=4;
-	double maxAvg=-9999;
-
-	for(int i=0; i<6-k+1; i++){
-		double tong=0;
-		for(int j=i; j<k+i; j++){
-			tong+=nums[j]/double(k);
-		}
-
-		if(maxAvg<tong) maxAvg=tong;
+void ReadBootSecter(int drive){
+	unsigned char buffer[SECTOR_SIZE];
+	union REGS regs;
+	struct SREGS sregs;
+	
+	regs.h.ah = 0x25;
+	regs.h.al = 1;
+	regs.h.ch = 0;
+	regs.h.cl = 1;
+	regs.h.dh = 0;
+	regs.h.dl = drive;
+	
+	sregs.es = FP_SEG(buffer);
+	regs.x.bx = FP_OFF(buffer);
+	
+	int86x(0x13,&regs,&regs,&sregs);
+	
+	if(regs.h.ah!=0){
+		printf("ma loi &d",regs.h.ah);
+		return;
 	}
 	
-	cout << maxAvg;
+	unsigned short BytePerSector = (buffer[0x0B]) | (buffer[0x0C] << 8);
+	unsigned char SectorPerCluster = (buffer[0x0D]);
+	unsigned short reservedSector = (buffer[0x0E]) | (buffer[0x0F] << 8);
+	unsigned char numFats = (buffer[0x10]);
+	unsigned short rootSector = (buffer[0x11]) | (buffer[0x12] << 8);
+	unsigned short SectorPerFat = (buffer[0x16]) | (buffer[0x17] << 8);
+	
+	printf("Byte Per Sector: &d",BytePerSector);
+}
+
+int main(){
+	int drive = 0x80;
+	ReadBootSecter(drive);
 	return 0;
 }
